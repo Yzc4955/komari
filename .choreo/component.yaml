@@ -1,0 +1,34 @@
+# Choreo Component Configuration
+# This file defines the service and its endpoints for Choreo
+
+component:
+  name: komari
+  type: service
+  version: 1.0.0
+  description: Komari monitoring service
+
+build:
+  preset: go
+  version: 1.x
+  commands:
+    build: go build -v -trimpath -ldflags="-s -w" -o komari main.go
+    run: ./komari server
+
+endpoints:
+  - name: api
+    port: 25774
+    type: REST
+    basePath: /
+    schema:
+      path: /
+
+environment:
+  variables:
+    - name: GIN_MODE
+      value: release
+    - name: KOMARI_DB_TYPE
+      value: sqlite
+    - name: KOMARI_DB_FILE
+      value: ./data/komari.db
+    - name: KOMARI_LISTEN
+      value: 0.0.0.0:25774
