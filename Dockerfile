@@ -12,18 +12,24 @@ WORKDIR /app/web
 RUN npm install && npm run build
 
 # 后端构建阶段
-FROM golang:1.23-alpine AS backend-builder
+FROM golang:1.24-alpine AS backend-builder
 
 WORKDIR /app
 
 # 安装依赖
 RUN apk add --no-cache git tzdata
 
+# 设置 GOPROXY 加速依赖下载
+ENV GOPROXY=https://goproxy.cn,direct
+
 # 复制前端构建产物
 COPY --from=frontend-builder /app/web/dist /app/public/dist
 
 # 复制后端代码
 COPY . /app
+
+# 下载依赖
+RUN go mod tidy
 
 # 构建后端
 RUN go build -trimpath -ldflags="-s -w" -o komari main.go
